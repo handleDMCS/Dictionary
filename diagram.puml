@@ -1,0 +1,142 @@
+@startuml
+abstract class menu {
+  # HashMap<String, String> links
+  + {abstract} launch() : String
+  + clear() : void
+  + displayLinks(String separator) : void
+  # getDefaultLinks() : HashMap<String, String>
+  # getDefaultLinks(String current) : HashMap<String, String>
+}
+
+class mainMenu {
+  + mainMenu()
+  + {static} getAction() : String
+  + {static} getLink() : String
+  + launch() : String
+}
+
+class operationsMenu {
+  - DB data_source
+  + operationsMenu()
+  + {static} getAction() : String
+  + {static} getLink() : String
+  - exportData() : void
+  - importData() : void
+  - addEntries() : void
+  + launch() : String
+}
+
+class searchMenu {
+  - DB data_source
+  + searchMenu()
+  + {static} getAction() : String
+  + {static} getLink() : String
+  + launch() : String
+}
+
+class selectMenu {
+  - DB data_source
+  + selectMenu()
+  + {static} getAction() : String
+  + {static} getLink() : String
+  - updateDefinition(String phrase) : void
+  - giveExample(String phrase) : void
+  - navigate(String phrase) : void
+  + launch() : String
+}
+
+class allPhrasesMenu {
+  - int first_index
+  - int words_per_page
+  - List<Word> page
+  - DB data_source
+  - HashMap<String, Object> props
+  + allPhrasesMenu()
+  + {static} getAction() : String
+  + {static} getLink() : String
+  - convertStringToInteger(String str) : Integer
+  - navigate(String action) : void
+  + launch() : String
+}
+
+class transMenu {
+  - DB data_source
+  + transMenu()
+  + {static} getAction() : String
+  + {static} getLink() : String
+  - translate(String action) : void
+  - pronounce() : void
+  + launch() : String
+}
+
+class CLI {
+  - HashMap<String, menu> all_menu
+  - menu current_menu
+  + CLI()
+  - init() : void
+  - launch() : void
+}
+
+class DB {
+  - JedisPool pool
+  - DB()
+  + {static} getInstance() : DB
+  + insertJSON(String path, boolean replace) : int
+  + insert(String eng, String vie) : void
+  + insert(Jedis jedis, Word word) : void
+  + batch_insert(List<Word> words) : void
+  + remove(String phrase) : void
+  + fetch(int first_id, int last_id) : List<Word>
+  + fetch() : List<Word>
+  + search(String keyword, String mode) : List<Word>
+  + getDef(String phrase) : String
+  + existPhrase(String phrase) : boolean
+}
+
+class Word {
+  - String word_target
+  - String word_explain
+  + Word(String word_target, String word_explain)
+  + getWordTarget() : String
+  + setWordTarget(String word_target) : void
+  + getWordExplain() : String
+  + setWordExplain(String word_explain) : void
+}
+
+class App {
+  + {static} main(String[] args) : void
+}
+
+class pyScriptRunner {
+  - String scriptPath
+  - String outputPath
+  + pyScriptRunner(String scriptPath, String outputPath)
+  + getOutputPath() : String
+  + launch(String... args) : void
+  + remove() : void
+}
+
+menu <|-- mainMenu : Extends
+menu <|-- operationsMenu : Extends
+menu <|-- searchMenu : Extends
+menu <|-- selectMenu : Extends
+menu <|-- allPhrasesMenu : Extends
+menu <|-- transMenu : Extends
+
+App *-- CLI
+CLI *-- menu 
+
+DB *-- Word
+
+operationsMenu *-- DB
+searchMenu *-- DB
+selectMenu *-- DB
+allPhrasesMenu *-- DB
+transMenu *-- DB
+
+
+operationsMenu --> pyScriptRunner
+selectMenu --> pyScriptRunner
+transMenu --> pyScriptRunner
+
+@enduml
